@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import tensorflow as tf
+from transformers import pipeline
+from transformers import DetrImageProcessor, DetrForObjectDetection
 from transformers import AutoImageProcessor, TFResNetForImageClassification
 
 class Object_Based_Labeler():
@@ -12,8 +14,9 @@ class Object_Based_Labeler():
         self.flag = 0
         self.iteration = 0
         self.skip_frames = 60
-        self.image_processor = AutoImageProcessor.from_pretrained("microsoft/resnet-50")
-        self.model = TFResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+        self.processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-101")
+        self.detection_model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-101")
+        self.image_to_text = pipeline("image-to-text", model="nlpconnect/vit-gpt2-image-captioning")
 
     def detect_objects(self , frame):
 
@@ -70,24 +73,18 @@ class Object_Based_Labeler():
             progress_bar = tqdm(total=frame_count)
             # Read and display each frame until the video ends
             for i in range (frame_count):
-
                 progress_bar.update(1)
-                # print(i)
-                # i += 1
-                # Read the next frame
                 
                 # if flag is true , go on and detect the objects
                 if self.flag :
                     ret, frame = cap.read()
                     if not ret:
-                      print("just borke")
                       break
+
                     # process and label the frame
                     label = self.detect_objects(frame)
-                    # print("im detecting")
                     if label != "None":
                       labels.append(label)
-                      print(label)
                     self.flag = 0
 
                 # controlling the amout of frames to skip for detection
