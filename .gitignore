@@ -1,4 +1,7 @@
 videos/
 data/
 test/
+chatbot/.rasa/
+chatbot/tests
+chatbot/__pychache__/
 .idea/
