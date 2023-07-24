@@ -126,7 +126,7 @@ class Image_Labeler():
 
             # appending the labels detected from the video
             label.extend(objects)
-            label = list(set(label))
+            label = "_".join(list(set(label)))
             info_dict["containing_objects"].append(label)
             info_dict["containing_captions"].append(actions)
 
