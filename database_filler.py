@@ -21,7 +21,7 @@ class Database_Filler():
         return path
 
 
-    def push_video_info(self , csv_path):
+    def push_image_info(self , csv_path):
 
         # attributes for connecting to the database
         conn = None
@@ -41,7 +41,7 @@ class Database_Filler():
                 with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur: # for writing or reading from database
 
                     # inseting value script
-                    insert_script  = 'INSERT INTO public.video(file_path , id , containing_objects , containing_actions) VALUES (%s , %s , %s , %s)'
+                    insert_script  = 'INSERT INTO public.images(file_path , id ,objects , actions) VALUES (%s , %s , %s , %s)'
 
                     # iterating through each row of the dataframe and extracting the necessary info
                     for index , row in tqdm(df.iterrows()):
@@ -49,7 +49,7 @@ class Database_Filler():
                         file_path = self.change_filepath(row["file_path"])
                         id = row["id"]
                         containing_objects = row["containing_objects"]
-                        containing_actins = row["containing_actions"]
+                        containing_actins = row["containing_captions"]
 
                         insert_list = (str(file_path) , str(id) , str(containing_objects) , str(containing_actins)) # specifing the types , just to make sure ...
 
@@ -122,6 +122,6 @@ class Database_Filler():
 
 if __name__ == '__main__':
 
-    CSV_PATH = r"data\csv\video_info.csv"
+    CSV_PATH = r"data\csv\image_info.csv"
     filler = Database_Filler()
-    filler.push_video_info(CSV_PATH)
+    filler.push_image_info(CSV_PATH)
