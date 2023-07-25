@@ -1,6 +1,8 @@
 import asyncio
 import contextlib
 import logging
+
+import cv2
 import spacy
 import os, sys
 import warnings
@@ -13,6 +15,7 @@ import logging
 import subprocess
 from HiddenPrints import HiddenPrints
 from utils import print_colored_text
+from actions import Actions
 
 
 class Chatbot():
@@ -23,6 +26,7 @@ class Chatbot():
         # self.tracker = Tracker()
         self.agent = Agent.load(model_path)
         self.nlp = spacy.load("en_core_web_md")
+        self.actions = Actions()
         os.system("cls")
         print_colored_text("chatbot loaded" , "green")
         # print("chatbot loaded")
@@ -34,6 +38,7 @@ class Chatbot():
         pos_list = [token.pos_ for token in doc]
         token_list = [token.lemma_ for token in doc]
 
+        actions_list = []
         action_list = []
         object_list = []
         flag = 0
@@ -52,10 +57,12 @@ class Chatbot():
             if flag:
                 if curr_pos == "NOUN":
                     action_list.append(curr_token)
+                    actions_list.append("_".join(action_list))
+                    action_list.clear()
                     object_list.append(curr_token)
                     flag = 0
 
-        return "_".join(object_list), "_".join(action_list)
+        return object_list, actions_list
 
     # Example interaction
     async def interact(self):
@@ -91,6 +98,9 @@ class Chatbot():
                     if responses_info["intent"]["name"] == "request_for_picture":
                         value = responses_info["entities"][0]["value"]
                         objects , actions = self.process_request(value)
+                        image = self.actions.find_request(request_objects=objects , request_actions=actions)
+                        cv2.imshow("image" , image)
+                        cv2.waitKey(0)
 
 
     def start_interaction(self):

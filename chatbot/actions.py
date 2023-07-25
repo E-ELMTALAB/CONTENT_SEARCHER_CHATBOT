@@ -1,6 +1,9 @@
 import traceback
+
+import cv2
 import psycopg2
 import psycopg2.extras
+from functools import wraps
 
 class Actions():
     def __init__(self):
@@ -45,46 +48,60 @@ class Actions():
 
         return wrapper
 
+    def find_occurrence(self , table , request_objects, request_actions):
 
-    def find_request(self , objects):
-        # attributes for connecting to the database
-        hostname = 'localhost'
-        database = 'content_label'
-        username = 'postgres'
-        pwd = 'arshanelmtalab1398a'
-        port_id = 5432
-        conn = None
+        sorted_items = {}
+        for item in table:
+            score = 0
+            objects = item[2]
+            action = item[3]
+            file_path = item[0]
 
-        # connecting to the database
+            object_list = objects.split("_")
+            action_list = action.split("_")
+
+            # calculating the highest score
+            highest_score = len(object_list) + (len(action_list) // 2)
+
+            for obj_request in request_objects:
+                if obj_request in object_list:
+                    score += 1
+
+            for act_request in request_actions:
+                if act_request in action:
+                    score += 1
+
+            sorted_items[file_path] = score
+
+        sorted_items = sorted(sorted_items.items(), key=lambda x: x[1], reverse=True)
+        print(sorted_items)
+        image_path = sorted_items[0][0]
+        image_path = image_path.replace("\\", "/")
+        image_path = r"C:\\python\\NLP\\content_searcher\\" + image_path
+        image_path = image_path.replace("\\\\", "/")
+        print(image_path)
+        image = cv2.imread(image_path)
+
+        return image
+
+    @db_connection
+    def find_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
+
         try:
-            with psycopg2.connect(
-                    host=hostname,
-                    dbname=database,
-                    user=username,
-                    password=pwd,
-                    port=port_id) as conn:
-
-                with conn.cursor(
-                        cursor_factory=psycopg2.extras.DictCursor) as cur:  # for writing or reading from database
-
-                    # # inseting value script
-                    # insert_script = 'INSERT INTO public.recommend_song(userid , songid) VALUES (%s , %s)'
-                    #
-                    # # inserting each recommendation song of each user id to the recommend_song table
-                    # for recom in recom_list:
-                    #     cur.execute(insert_script, (user_id, recom))
-                    #     conn.commit()
-
-                    cur.execute('SELECT * FROM public.images')
-                    print(cur.fetchall())
+            cur.execute('SELECT * FROM public.images')
+            table = cur.fetchall()
+            image = self.find_occurrence(table , request_objects , request_actions)
+            return image
 
         except Exception as error:
             traceback.print_exc()
-        finally:  # close the connection to the database
-            if conn is not None:
-                conn.close()
+            return None
 
 
 if __name__ == "__main__":
+    request_objects = ["woman" ,"camera"]
+    request_actions = ["holding_camera"]
     action = Actions()
-    action.find_request()
+    image = action.find_request(request_objects=request_objects , request_actions=request_actions)
+    cv2.imshow("image" , image)
+    cv2.waitKey(0)

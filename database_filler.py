@@ -59,8 +59,8 @@ class Database_Filler():
             return None
 
     def change_filepath(self , head_path):
-        base_path = "data/"
-        path = (base_path + head_path[8:]).replace("/" , "\\")
+        base_path = "data\\"
+        path = (base_path + head_path.split("/")[1]).replace("/" , "\\")
         return path
 
 
