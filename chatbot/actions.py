@@ -82,7 +82,7 @@ class Actions():
         print(image_path)
         image = cv2.imread(image_path)
 
-        return image
+        return image , image_path
 
     @db_connection
     def find_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
@@ -90,8 +90,8 @@ class Actions():
         try:
             cur.execute('SELECT * FROM public.images')
             table = cur.fetchall()
-            image = self.find_occurrence(table , request_objects , request_actions)
-            return image
+            image , image_path = self.find_occurrence(table , request_objects , request_actions)
+            return image , image_path
 
         except Exception as error:
             traceback.print_exc()

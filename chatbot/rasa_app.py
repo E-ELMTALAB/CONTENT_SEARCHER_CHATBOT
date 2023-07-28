@@ -1,7 +1,6 @@
 import asyncio
 import contextlib
 import logging
-
 import cv2
 import spacy
 import os, sys
@@ -20,15 +19,16 @@ from actions import Actions
 
 class Chatbot():
 
-    def __init__(self , model_path):
+    def __init__(self):
         # load the model
         # model_path = r"models/20230721-174025-numerous-drawbridge.tar.gz"
         # self.tracker = Tracker()
+        model_path = r"C:\python\NLP\content_searcher\chatbot\models\20230723-211647-brown-experience.tar.gz"
         self.agent = Agent.load(model_path)
         self.nlp = spacy.load("en_core_web_md")
         self.actions = Actions()
-        os.system("cls")
-        print_colored_text("chatbot loaded" , "green")
+        # os.system("cls")
+        # print_colored_text("chatbot loaded" , "green")
         # print("chatbot loaded")
         # print("\n")
     def process_request(self , request):
@@ -63,6 +63,35 @@ class Chatbot():
                     flag = 0
 
         return object_list, actions_list
+
+    async def send_message(self , text):
+        responses_info = await self.agent.parse_message(text)
+        responses = await self.agent.handle_text(text)
+        # try:
+        # print(responses_info)
+        try:
+            print("in the try block")
+            output = responses[0]["text"]
+            print(output)
+        except:
+            pass
+        score = responses_info["intent"]["confidence"]
+
+        if score < 0.95:
+            # print_colored_text("I don't know what you are talking about")
+            # print_colored_text(str(score))
+            ouput = "None"
+
+        # else:
+        #     print_colored_text(output)
+        #     intent = responses_info["intent"]["name"]
+        #     if responses_info["intent"]["name"] == "request_for_picture":
+        #         value = responses_info["entities"][0]["value"]
+        #         objects, actions = self.process_request(value)
+        #         image = self.actions.find_request(request_objects=objects, request_actions=actions)
+
+        return output , responses_info
+
 
     # Example interaction
     async def interact(self):
@@ -106,10 +135,14 @@ class Chatbot():
     def start_interaction(self):
         asyncio.run(self.interact())
 
+    def async_send_message(self , text):
+        respond_text , response_info = asyncio.run(self.send_message(text))
+        return respond_text , response_info
+
 if __name__ == "__main__":
 
     MODEL_DIR = r"C:\python\NLP\content_searcher\chatbot\models\20230723-211647-brown-experience.tar.gz"
-    chatbot = Chatbot(MODEL_DIR)
+    chatbot = Chatbot()
     chatbot.start_interaction()
     # Run the interaction loop
     # asyncio.run(interact())
