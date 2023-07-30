@@ -69,6 +69,7 @@ class Ui_MainWindow(object):
         self.widget.setStyleSheet(u"")
         self.lineEdit = QLineEdit(self.widget)
         self.lineEdit.setObjectName(u"lineEdit")
+        self.lineEdit.setPlaceholderText("Chat with the bot...")
         self.lineEdit.setGeometry(QRect(0, 0, 981, 61))
         font = QFont()
         font.setBold(False)
@@ -137,7 +138,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.lineEdit.setText(QCoreApplication.translate("MainWindow", u"request an image here ...", None))
+        # self.lineEdit.setText(QCoreApplication.translate("MainWindow", u"request an image here ...", None))
         self.pushButton.setText("")
     # retranslateUi
 

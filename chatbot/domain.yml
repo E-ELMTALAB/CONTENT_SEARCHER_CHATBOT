@@ -11,10 +11,27 @@ intents:
   - give_number
   - say_hello_world
   - request_for_picture
+  - used_for_what
+  - ask_for_examples
+  - asking_for_examples
 
 responses:
   utter_greet:
   - text: "Hey! How are you?"
+
+  utter_give_examples:
+  - text: "give_examples"
+
+  utter_explain_usage:
+  - text: "I can find images of animals, places, objects, and more. Just tell me what you need, and I'll fetch the best matches for you."
+
+  - text: "Need stunning images of nature, animals, or landmarks? Ask me, and I'll provide you with the perfect visuals."
+
+  - text: "I specialize in finding various types of images. Just type your queries, and I'll take care of the rest!"
+
+  - text: "I'm here to help you discover the perfect images. Tell me what you want to see, and I'll deliver high-quality matches."
+
+  - text: "I can assist you in your visual quests. Whether it's animals, travel, or art, I've got it covered. Let's explore images together!"
 
   utter_default:
   - text: Sorry I didn't get that. Can you rephrase?
@@ -63,6 +80,8 @@ slots:
 
 actions:
 - action_hello_world
+- utter_give_examples
+- utter_explain_usage
 
 
 session_config:

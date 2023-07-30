@@ -23,7 +23,7 @@ class Chatbot():
         # load the model
         # model_path = r"models/20230721-174025-numerous-drawbridge.tar.gz"
         # self.tracker = Tracker()
-        model_path = r"C:\python\NLP\content_searcher\chatbot\models\20230723-211647-brown-experience.tar.gz"
+        model_path = r"C:\python\NLP\content_searcher\chatbot\models\20230730-050723-ambitious-texture.tar.gz"
         self.agent = Agent.load(model_path)
         self.nlp = spacy.load("en_core_web_md")
         self.actions = Actions()
@@ -141,7 +141,7 @@ class Chatbot():
 
 if __name__ == "__main__":
 
-    MODEL_DIR = r"C:\python\NLP\content_searcher\chatbot\models\20230723-211647-brown-experience.tar.gz"
+    MODEL_DIR = r"C:\python\NLP\content_searcher\chatbot\models\20230730-033911-humid-reduction.tar.gz"
     chatbot = Chatbot()
     chatbot.start_interaction()
     # Run the interaction loop

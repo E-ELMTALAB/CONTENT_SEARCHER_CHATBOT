@@ -13,15 +13,27 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.chatbot = Chatbot()
+        self.wellcome()
 
         # Connect the 'clicked' signal of the QPushButton
         # to the custom function 'on_send_button_clicked'
         self.ui.pushButton.clicked.connect(self.add_user_request)
         self.ui.lineEdit.returnPressed.connect(self.add_user_request)
+    def wellcome(self):
+        # received_text, responses_info = self.chatbot.async_send_message("wellcome")
+        # print(received_text)
+        wellcome_text = "Hi there! I'm the image search assistant. ask me to find images or ask me to help you with the commands..."
+        self.send_response(wellcome_text)
 
+    def give_examples(self):
+        example_list = ["find me a picture of a woman holding a camera" , "can you give me an image of an elephant in the forest" , "give me a picture of a bunch of kids playing in the field"]
+        self.send_response("you can say things like ...")
+        for example in example_list:
+            self.send_response(example)
 
     def add_user_request(self):
         text = self.ui.lineEdit.text()
+        self.ui.lineEdit.clear()
         window = QFrame()
         window.setStyleSheet("background-color:white;")
         hbox_layout = QHBoxLayout()
@@ -54,12 +66,17 @@ class MainWindow(QMainWindow):
         print("done here")
         received_text , responses_info = self.chatbot.async_send_message(text)
         print(received_text)
-        self.send_response(received_text)
+        # self.send_response(received_text)
         if responses_info["intent"]["name"] == "request_for_picture":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
             image , image_path = self.chatbot.actions.find_request(request_objects=objects, request_actions=actions)
             self.send_image(image_path)
+        else:
+            self.send_response(received_text)
+
+        if received_text == "give_examples":
+            self.give_examples()
 
     def send_response(self , text):
         # text = self.ui.lineEdit.text()
@@ -98,7 +115,7 @@ class MainWindow(QMainWindow):
     def send_image(self , image_path):
         text = self.ui.lineEdit.text()
         window = QFrame()
-        window.setStyleSheet("background-color:black;")
+        window.setStyleSheet("background-color:white;")
         hbox_layout = QHBoxLayout()
         self.new_label = QLabel(text, self)
         self.new_label.setStyleSheet(
@@ -120,7 +137,7 @@ class MainWindow(QMainWindow):
         self.new_label.setWordWrap(True)  # Enable text wrapping
         # self.new_label.setMHeight(50)
         height = self.set_image(image_path)
-        window.setMaximumHeight(height)
+        # window.setMaximumHeight(height)
 
 
         hbox_layout.addWidget(self.new_label)

@@ -61,8 +61,12 @@ class Image_Labeler():
                     action_list.append(curr_token)
                     object_list.append(curr_token)
                     flag = 0
+        if action_list :
+            action_list = "_".join(action_list)
+        else :
+            action_list = "None"
 
-        return object_list, "_".join(action_list)
+        return object_list, action_list
 
     def detect_objects(self, image):
 
@@ -88,9 +92,9 @@ class Image_Labeler():
     def make_csv(self, info_dict):
 
         # making the dataimage and making a csv file from it
-        print("i made the csv !")
         df = pd.DataFrame(info_dict)
         df.to_csv("image_info.csv", index=False)
+        print("i made the csv !")
 
     def process_videos(self, folder_path):
 
@@ -120,16 +124,21 @@ class Image_Labeler():
                 # process and label the image
                 label = self.detect_objects(image)
                 objects = []
+                actions = "None"
                 if label != "None":
                     caption = self.detect_caption(image)
                     objects , actions = self.process_caption(caption)
 
-            # appending the labels detected from the video
-            label.extend(objects)
-            label = "_".join(list(set(label)))
+                    # appending the labels detected from the video
+                    label.extend(objects)
+                    label = "_".join(list(set(label)))
             info_dict["containing_objects"].append(label)
             info_dict["containing_captions"].append(actions)
 
+        print(len(info_dict["containing_objects"]))
+        print(len(info_dict["containing_captions"]))
+        print(len(info_dict["file_path"]))
+        print(len(info_dict["id"]))
         self.make_csv(info_dict)
 
 
@@ -138,3 +147,6 @@ if __name__ == "__main__":
     IMAGE_DIR = "data/images"
     labeler = Image_Labeler()
     labeler.process_videos(IMAGE_DIR)
+    # obj , act = labeler.process_caption("a collage of images of a man and a woman")
+    # print(obj)
+    # print(act)
