@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt , QSize , QRect , QTimer
 from PyQt5.QtGui import QFont , QPixmap
 from ui import Ui_MainWindow
 from chatbot_backend import Chatbot
+import pygame
+from pyvidplayer import Video
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -18,6 +20,32 @@ class MainWindow(QMainWindow):
         # sending the request in the chat by clicking or pressing the return
         self.ui.pushButton.clicked.connect(self.add_user_request)
         self.ui.lineEdit.returnPressed.connect(self.add_user_request)
+
+    def intro(self, video_path , second):
+
+        vid = Video(video_path)
+        vid.set_size((900, 900))
+
+        # Initialize Pygame
+        pygame.init()
+
+        # Set the screen dimensions (width, height)
+        screen_width = 800
+        screen_height = 600
+
+        # Create the Pygame screen
+        SCREEN = pygame.display.set_mode((screen_width, screen_height))
+
+        print(vid.get_file_data())
+        # second = ((frame * 120) // 25) - 5
+        print("the frame : " + str(second))
+        vid.seek(second)
+        while True:
+            vid.draw(SCREEN, (0, 0))
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    vid.close()
 
     # used for the first chat of the bot
     def wellcome(self):
@@ -65,8 +93,8 @@ class MainWindow(QMainWindow):
         elif responses_info["intent"]["name"] == "request_for_video":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            image, image_path = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
-            self.send_image(image_path)
+            video_path , second = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+            self.intro(video_path , second)
 
         else:
             self.send_response(received_text)

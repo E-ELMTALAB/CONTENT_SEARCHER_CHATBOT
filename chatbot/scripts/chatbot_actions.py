@@ -5,8 +5,6 @@ import cv2
 import psycopg2
 import psycopg2.extras
 from functools import wraps
-import pygame
-from pyvidplayer import Video
 
 class Actions():
 
