@@ -180,32 +180,6 @@ class Actions():
             traceback.print_exc()
             return None
 
-    def intro(self, video_path , second):
-
-        vid = Video(video_path)
-        vid.set_size((900, 900))
-
-        # Initialize Pygame
-        pygame.init()
-
-        # Set the screen dimensions (width, height)
-        screen_width = 800
-        screen_height = 600
-
-        # Create the Pygame screen
-        SCREEN = pygame.display.set_mode((screen_width, screen_height))
-
-        print(vid.get_file_data())
-        # second = ((frame * 120) // 25) - 5
-        print("the frame : " + str(second))
-        vid.seek(second)
-        while True:
-            vid.draw(SCREEN, (0, 0))
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    vid.close()
-
     @db_connection
     def find_video_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
         try:
@@ -217,9 +191,8 @@ class Actions():
             video_path = str(base_path + "\\" + video_name)
             print("the name of the video is : " + video_path)
             print("the frame is the frame number : " + str(second) )
-            self.intro(video_path , second)
 
-            return "video_name "
+            return video_path , second
 
         except Exception as error:
             traceback.print_exc()
@@ -229,5 +202,5 @@ if __name__ == "__main__":
     request_objects = ["dog" ,"blanket"]
     request_actions = ["lay_blanket"]
     action = Actions()
-    name = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
+    video_path , second = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
     # cv2.imshow("image" , image)
