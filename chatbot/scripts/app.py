@@ -11,6 +11,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.video_path = "None"
+        self.second = 0
+
         # Initialize the user interface
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -93,8 +96,8 @@ class MainWindow(QMainWindow):
         elif responses_info["intent"]["name"] == "request_for_video":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            video_path , second = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
-            self.intro(video_path , second)
+            self.video_path , self.second = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+            # self.intro(self.video_path , self.second)
 
         else:
             self.send_response(received_text)
