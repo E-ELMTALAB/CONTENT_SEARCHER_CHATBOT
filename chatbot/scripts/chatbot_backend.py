@@ -111,7 +111,7 @@ class Chatbot():
                     if responses_info["intent"]["name"] == "request_for_picture":
                         value = responses_info["entities"][0]["value"]
                         objects , actions = self.process_request(value)
-                        image = self.actions.find_request(request_objects=objects , request_actions=actions)
+                        image = self.actions.find_image_request(request_objects=objects , request_actions=actions)
                         cv2.imshow("image", image)
                         cv2.waitKey(0)
 

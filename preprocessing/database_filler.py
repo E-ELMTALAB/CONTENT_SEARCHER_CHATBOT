@@ -97,48 +97,43 @@ class Database_Filler():
             traceback.print_exc()
             return None
 
-    def push_video_info(self , csv_path):
+    @db_connection
+    def push_video_info(self , conn=None , cur=None , csv_path=None):
 
-        # attributes for connecting to the database
-        conn = None
-        # reading the csv file 
-        df = pd.read_csv(csv_path)
         # connecting to the database
         try:
-            with psycopg2.connect(
-                        host = Database_Filler.hostname,
-                        dbname = Database_Filler.database,
-                        user = Database_Filler.username,
-                        password = Database_Filler.pwd,
-                        port = Database_Filler.port_id) as conn:
+            df = pd.read_csv(csv_path)
+            # inserting value script
+            insert_script  = 'INSERT INTO public.videos(file_path , id , all_objects , all_actions ,  containing_objects , containing_actions) VALUES (%s , %s , %s , %s , %s , %s)'
 
-                with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur: # for writing or reading from database
-                    # inseting value script
-                    insert_script  = 'INSERT INTO public.video(file_path , id , containing_objects , containing_actions) VALUES (%s , %s , %s , %s)'
+            # iterating through each row of the dataframe and extracting the necessary info
+            for index , row in tqdm(df.iterrows()):
 
-                    # iterating through each row of the dataframe and extracting the necessary info
-                    for index , row in tqdm(df.iterrows()):
-                        file_path = self.change_filepath(row["file_path"])
-                        id = row["id"]
-                        containing_objects = row["containing_objects"]
-                        containing_actins = row["containing_actions"]
-                        insert_list = (str(file_path) , str(id) , str(containing_objects) , str(containing_actins)) # specifing the types , just to make sure ...
+                file_path = self.change_filepath(row["file_path"])
+                id = row["id"]
+                all_objects = row["All_Objects"]
+                all_actions = row["All_Captions"]
+                containing_objects = row["Containing_Objects"]
+                containing_actins = row["Containing_Captions"]
+                insert_list = (str(file_path) , str(id) ,str(all_objects) , str(all_actions), str(containing_objects) , str(containing_actins)) # specifing the types , just to make sure ...
 
-                        try :
-                            # inserting each of the songs to the database 
-                            cur.execute(insert_script , insert_list)
-                            conn.commit()
-                        except psycopg2.IntegrityError: # if the value already exist in the database skip it
-                            conn.rollback()
+                try :
+                    # inserting each of the songs to the database
+                    cur.execute(insert_script , insert_list)
+                    conn.commit()
+                    # print(f"song id {id} inserted successfully!")
+
+                except psycopg2.IntegrityError: # if the value already exist in the database skip it
+                    conn.rollback()
+                    # print(f"Skipping song id {id} as it already exists!")
+            return len(df)
 
         except Exception as error:
             traceback.print_exc()
-        finally: # close the connection to the database
-            if conn is not None:
-                conn.close() 
+            return None
 
 if __name__ == '__main__':
 
-    CSV_PATH = r"data/csv/image_info.csv"
+    CSV_PATH = r"C:\python\NLP\content_searcher\data\csv\video_info(5).csv"
     filler = Database_Filler()
-    filler.push_image_info(CSV_PATH)
+    filler.push_video_info(CSV_PATH)

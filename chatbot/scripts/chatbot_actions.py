@@ -1,9 +1,12 @@
 import traceback
+from collections import defaultdict
 
 import cv2
 import psycopg2
 import psycopg2.extras
 from functools import wraps
+import pygame
+from pyvidplayer import Video
 
 class Actions():
 
@@ -50,7 +53,7 @@ class Actions():
         return wrapper
 
     # finding the best image based on the request
-    def find_occurrence(self , table , request_objects, request_actions):
+    def find_image_occurrence(self , table , request_objects, request_actions):
 
         sorted_items = {}
         for item in table:
@@ -85,24 +88,147 @@ class Actions():
 
         return image , image_path
 
-    @db_connection
-    def find_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
 
+    # finding the best image based on the request
+    def find_video_occurrence(self , table , request_objects, request_actions):
+
+        sorted_items = {}
+        highest_score_frame = "None"
+        for item in table:
+            score = 0
+            file_path = item[0]
+            id = item[1]
+            all_objects = item[2]
+            all_actions = item[3]
+            containing_objects = item[4]
+            containing_actions = item[5]
+
+
+            all_objects_list = all_objects.split("_")
+            all_actions_list = all_actions.split("_#_")
+
+            # calculating the highest score
+            highest_score = len(all_objects_list) + (len(all_actions_list) // 2)
+            for obj_request in request_objects:
+                if obj_request in all_objects_list:
+                    score += 1
+
+            for act_request in request_actions:
+                if act_request in all_actions_list:
+                    score += 1
+
+            sorted_items[id] = score
+
+        sorted_items = sorted(sorted_items.items(), key=lambda x: x[1], reverse=True)
+        print(sorted_items)
+        chosen_one_id = sorted_items[0][0]
+
+        for item in table:
+            item_id = item[1]
+            if item_id == chosen_one_id:
+                sorted_frames = defaultdict(int)
+                chosen_one_con_obj = item[4]
+                chosen_one_con_act = item[5]
+
+                containing_objects_list = []
+                containing_actions_list = []
+                temp_containing_objects_list = chosen_one_con_obj.split("@")
+                temp_containing_actions_list = chosen_one_con_act.split("@")
+
+                for frame_actions in temp_containing_actions_list:
+                    containing_actions_list.append(frame_actions.split("___"))
+
+                for frame_objects in temp_containing_objects_list:
+                    containing_objects_list.append(frame_objects.split("_"))
+
+                for request in request_objects:
+                    for i, objs_list in enumerate(containing_objects_list):
+                        if request in objs_list:
+                            num = objs_list.count(request)
+                            sorted_frames[str(i)] += num
+
+                for request in request_actions:
+                    for i, actions_list in enumerate(containing_actions_list):
+                        if request in actions_list:
+                            num = actions_list.count(request)
+                            sorted_frames[str(i)] += num
+                sorted_frames = sorted(sorted_frames.items(), key=lambda x: x[1], reverse=True)
+                highest_score_frame = sorted_frames[0][0]
+
+
+
+
+
+        # image_path = sorted_items[0][0]
+        # image_path = image_path.replace("\\", "/")
+        # image_path = r"C:\\python\\NLP\\content_searcher\\" + image_path
+        # image_path = image_path.replace("\\\\", "/")
+        # print(image_path)
+        # image = cv2.imread(image_path)
+
+        return chosen_one_id , int(highest_score_frame)
+
+    @db_connection
+    def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
         try:
             cur.execute('SELECT * FROM public.images')
             table = cur.fetchall()
-            image , image_path = self.find_occurrence(table , request_objects , request_actions)
+            image , image_path = self.find_image_occurrence(table , request_objects , request_actions)
             return image , image_path
 
         except Exception as error:
             traceback.print_exc()
             return None
 
+    def intro(self, video_path , frame):
+
+        vid = Video(video_path)
+        vid.set_size((900, 900))
+
+        print(type(frame))
+        # Initialize Pygame
+        pygame.init()
+
+        # Set the screen dimensions (width, height)
+        screen_width = 800
+        screen_height = 600
+
+        # Create the Pygame screen
+        SCREEN = pygame.display.set_mode((screen_width, screen_height))
+
+        print(vid.get_file_data())
+        second = ((frame * 120) // 25) - 5
+        print("the frame : " + str(second))
+        vid.seek(second)
+        while True:
+            vid.draw(SCREEN, (0, 0))
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    vid.close()
+
+    @db_connection
+    def find_video_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
+        try:
+            cur.execute('SELECT * FROM public.videos')
+            table = cur.fetchall()
+            print(table)
+            video_name , frame = self.find_video_occurrence(table , request_objects , request_actions)
+            base_path = r"C:\python\NLP\content_searcher\data\videos"
+            video_path = str(base_path + "\\" + video_name)
+            print("the name of the video is : " + video_path)
+            print("the frame is the frame number : " + str(frame) )
+            self.intro(video_path , frame)
+
+            return "video_name "
+
+        except Exception as error:
+            traceback.print_exc()
+            return None
 
 if __name__ == "__main__":
-    request_objects = ["woman" ,"camera"]
-    request_actions = ["holding_camera"]
+    request_objects = ["dog" ,"blanket"]
+    request_actions = ["lay_blanket"]
     action = Actions()
-    image = action.find_request(request_objects=request_objects , request_actions=request_actions)
-    cv2.imshow("image" , image)
-    cv2.waitKey(0)
+    name = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
+    # cv2.imshow("image" , image)
