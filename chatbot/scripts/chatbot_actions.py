@@ -50,7 +50,7 @@ class Actions():
         return wrapper
 
     # finding the best image based on the request
-    def find_occurrence(self , table , request_objects, request_actions):
+    def find_image_occurrence(self , table , request_objects, request_actions):
 
         sorted_items = {}
         for item in table:
@@ -86,12 +86,12 @@ class Actions():
         return image , image_path
 
     @db_connection
-    def find_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
+    def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
 
         try:
             cur.execute('SELECT * FROM public.images')
             table = cur.fetchall()
-            image , image_path = self.find_occurrence(table , request_objects , request_actions)
+            image , image_path = self.find_image_occurrence(table , request_objects , request_actions)
             return image , image_path
 
         except Exception as error:
@@ -103,6 +103,6 @@ if __name__ == "__main__":
     request_objects = ["woman" ,"camera"]
     request_actions = ["holding_camera"]
     action = Actions()
-    image = action.find_request(request_objects=request_objects , request_actions=request_actions)
+    image = action.find_image_request(request_objects=request_objects , request_actions=request_actions)
     cv2.imshow("image" , image)
     cv2.waitKey(0)

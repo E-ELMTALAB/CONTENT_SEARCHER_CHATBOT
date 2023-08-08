@@ -59,7 +59,7 @@ class MainWindow(QMainWindow):
         if responses_info["intent"]["name"] == "request_for_picture":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            image , image_path = self.chatbot.actions.find_request(request_objects=objects, request_actions=actions)
+            image , image_path = self.chatbot.actions.find_image_request(request_objects=objects, request_actions=actions)
             self.send_image(image_path)
         else:
             self.send_response(received_text)
