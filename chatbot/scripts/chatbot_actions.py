@@ -166,7 +166,7 @@ class Actions():
         # print(image_path)
         # image = cv2.imread(image_path)
 
-        return chosen_one_id , int(highest_score_frame)
+        return chosen_one_id , ((int(highest_score_frame) * 120) // 25) - 5
 
     @db_connection
     def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
@@ -180,12 +180,11 @@ class Actions():
             traceback.print_exc()
             return None
 
-    def intro(self, video_path , frame):
+    def intro(self, video_path , second):
 
         vid = Video(video_path)
         vid.set_size((900, 900))
 
-        print(type(frame))
         # Initialize Pygame
         pygame.init()
 
@@ -197,7 +196,7 @@ class Actions():
         SCREEN = pygame.display.set_mode((screen_width, screen_height))
 
         print(vid.get_file_data())
-        second = ((frame * 120) // 25) - 5
+        # second = ((frame * 120) // 25) - 5
         print("the frame : " + str(second))
         vid.seek(second)
         while True:
@@ -213,12 +212,12 @@ class Actions():
             cur.execute('SELECT * FROM public.videos')
             table = cur.fetchall()
             print(table)
-            video_name , frame = self.find_video_occurrence(table , request_objects , request_actions)
+            video_name , second = self.find_video_occurrence(table , request_objects , request_actions)
             base_path = r"C:\python\NLP\content_searcher\data\videos"
             video_path = str(base_path + "\\" + video_name)
             print("the name of the video is : " + video_path)
-            print("the frame is the frame number : " + str(frame) )
-            self.intro(video_path , frame)
+            print("the frame is the frame number : " + str(second) )
+            self.intro(video_path , second)
 
             return "video_name "
 
