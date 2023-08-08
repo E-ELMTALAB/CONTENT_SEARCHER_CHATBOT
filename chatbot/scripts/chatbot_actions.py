@@ -1,4 +1,5 @@
 import traceback
+from collections import defaultdict
 
 import cv2
 import psycopg2
@@ -90,6 +91,7 @@ class Actions():
     def find_video_occurrence(self , table , request_objects, request_actions):
 
         sorted_items = {}
+        highest_score_frame = "None"
         for item in table:
             score = 0
             file_path = item[0]
@@ -122,11 +124,38 @@ class Actions():
         for item in table:
             item_id = item[1]
             if item_id == chosen_one_id:
+                sorted_frames = defaultdict(int)
                 chosen_one_con_obj = item[4]
                 chosen_one_con_act = item[5]
 
-                containing_objects_list = chosen_one_con_obj.split("@")
-                containing_actions_list = chosen_one_con_act.split("@")
+                containing_objects_list = []
+                containing_actions_list = []
+                temp_containing_objects_list = chosen_one_con_obj.split("@")
+                temp_containing_actions_list = chosen_one_con_act.split("@")
+
+                for frame_actions in temp_containing_actions_list:
+                    containing_actions_list.append(frame_actions.split("___"))
+
+                for frame_objects in temp_containing_objects_list:
+                    containing_objects_list.append(frame_objects.split("_"))
+
+                for request in request_objects:
+                    for i, objs_list in enumerate(containing_objects_list):
+                        if request in objs_list:
+                            num = objs_list.count(request)
+                            sorted_frames[str(i)] += num
+
+                for request in request_actions:
+                    for i, actions_list in enumerate(containing_actions_list):
+                        if request in actions_list:
+                            num = actions_list.count(request)
+                            sorted_frames[str(i)] += num
+                sorted_frames = sorted(sorted_frames.items(), key=lambda x: x[1], reverse=True)
+                highest_score_frame = sorted_frames[0][0]
+
+
+
+
 
         # image_path = sorted_items[0][0]
         # image_path = image_path.replace("\\", "/")
@@ -135,7 +164,7 @@ class Actions():
         # print(image_path)
         # image = cv2.imread(image_path)
 
-        return "image" , "image_path"
+        return chosen_one_id , highest_score_frame
 
     @db_connection
     def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
@@ -155,7 +184,9 @@ class Actions():
             cur.execute('SELECT * FROM public.videos')
             table = cur.fetchall()
             print(table)
-            image , image_path = self.find_video_occurrence(table , request_objects , request_actions)
+            video_name , frame = self.find_video_occurrence(table , request_objects , request_actions)
+            print("the name of the video is : " + video_name)
+            print("the frame is the frame number : " + frame )
             return "None"
 
         except Exception as error:
@@ -163,8 +194,8 @@ class Actions():
             return None
 
 if __name__ == "__main__":
-    request_objects = ["dog" ,"cage"]
-    request_actions = ["lay_ground"]
+    request_objects = ["dog" ,"rug"]
+    request_actions = []
     action = Actions()
     image = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
     # cv2.imshow("image" , image)
