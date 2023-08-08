@@ -164,7 +164,7 @@ class Actions():
         # print(image_path)
         # image = cv2.imread(image_path)
 
-        return chosen_one_id , ((int(highest_score_frame) * 120) // 25) - 5
+        return chosen_one_id , ((int(highest_score_frame) * 120) // 25) - 5 , int(highest_score_frame)
 
     @db_connection
     def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):

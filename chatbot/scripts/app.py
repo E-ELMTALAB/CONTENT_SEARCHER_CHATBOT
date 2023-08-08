@@ -1,4 +1,6 @@
 import sys
+
+import cv2
 from PyQt5.QtWidgets import QApplication, QMainWindow , QLabel , QPushButton  , QHBoxLayout  , QSizePolicy , QFrame 
 from PyQt5.QtCore import Qt , QSize , QRect , QTimer
 from PyQt5.QtGui import QFont , QPixmap
@@ -13,6 +15,7 @@ class MainWindow(QMainWindow):
 
         self.video_path = "None"
         self.second = 0
+        self.video_label = QPushButton()
 
         # Initialize the user interface
         self.ui = Ui_MainWindow()
@@ -96,7 +99,12 @@ class MainWindow(QMainWindow):
         elif responses_info["intent"]["name"] == "request_for_video":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            self.video_path , self.second = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+            self.video_path , self.second , frame_index = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+
+            cap = cv2.VideoCapture(self.video_path)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+            _ , self.thumb_nail = cap.read()
+            self.send_video_label("the video")
             # self.intro(self.video_path , self.second)
 
         else:
@@ -125,6 +133,31 @@ class MainWindow(QMainWindow):
         window.setLayout(hbox_layout)
         self.ui.vbox_layout.addWidget(window)
         QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
+
+    # responding in the chat
+    def send_video_label(self , text):
+        window = QFrame()
+        window.setStyleSheet("background-color:white;")
+        hbox_layout = QHBoxLayout()
+        self.video_label = QPushButton(text, self)
+        self.video_label.setStyleSheet("border: 2px solid #3498db;\n")
+        self.video_label.clicked.connect(self.play_video)
+        font = QFont()
+        font.setPointSize(12)  # Change the font size to 16 points
+        # self.video_label.setFont(font)
+        # self.video_label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)  # Set the size policy
+        # # Set the maximum width for the label (adjust this value to your desired threshold)
+        self.video_label.setMaximumWidth(510)
+        # self.video_label.setWordWrap(True)  # Enable text wrapping
+        self.video_label.setMinimumHeight(500)
+        hbox_layout.addWidget(self.video_label)
+        hbox_layout.setAlignment(Qt.AlignLeft)
+        window.setLayout(hbox_layout)
+        self.ui.vbox_layout.addWidget(window)
+        QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
+
+    def play_video(self):
+        self.intro(self.video_path , self.second)
 
     # function for sending images in the chat
     def send_image(self , image_path):
