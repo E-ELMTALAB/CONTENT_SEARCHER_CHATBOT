@@ -14,6 +14,7 @@ intents:
   - used_for_what
   - ask_for_examples
   - asking_for_examples
+  - request_for_video
 
 responses:
   utter_greet:
@@ -37,6 +38,9 @@ responses:
   - text: Sorry I didn't get that. Can you rephrase?
 
   utter_request_for_picture:
+    - text: I detected {collected_objects}.
+
+  utter_request_for_video:
     - text: I detected {collected_objects}.
 
   utter_repeat_number:
