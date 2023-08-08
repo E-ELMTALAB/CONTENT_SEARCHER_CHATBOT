@@ -184,13 +184,13 @@ class Actions():
             cur.execute('SELECT * FROM public.videos')
             table = cur.fetchall()
             print(table)
-            video_name , second = self.find_video_occurrence(table , request_objects , request_actions)
+            video_name , second , frame = self.find_video_occurrence(table , request_objects , request_actions)
             base_path = r"C:\python\NLP\content_searcher\data\videos"
             video_path = str(base_path + "\\" + video_name)
             print("the name of the video is : " + video_path)
             print("the frame is the frame number : " + str(second) )
 
-            return video_path , second
+            return video_path , second , frame
 
         except Exception as error:
             traceback.print_exc()

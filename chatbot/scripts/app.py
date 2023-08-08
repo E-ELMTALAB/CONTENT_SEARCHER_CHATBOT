@@ -3,7 +3,7 @@ import sys
 import cv2
 from PyQt5.QtWidgets import QApplication, QMainWindow , QLabel , QPushButton  , QHBoxLayout  , QSizePolicy , QFrame 
 from PyQt5.QtCore import Qt , QSize , QRect , QTimer
-from PyQt5.QtGui import QFont , QPixmap
+from PyQt5.QtGui import QFont, QPixmap, QImage, QIcon
 from ui import Ui_MainWindow
 from chatbot_backend import Chatbot
 import pygame
@@ -14,8 +14,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.video_path = "None"
+        self.thumb_nail = None
         self.second = 0
-        self.video_label = QPushButton()
 
         # Initialize the user interface
         self.ui = Ui_MainWindow()
@@ -103,7 +103,11 @@ class MainWindow(QMainWindow):
 
             cap = cv2.VideoCapture(self.video_path)
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-            _ , self.thumb_nail = cap.read()
+            _ , frame = cap.read()
+            frame = cv2.cvtColor(frame , cv2.COLOR_BGR2RGB)
+            height, width, channel = frame.shape
+            bytes_per_line = width * channel
+            self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label("the video")
             # self.intro(self.video_path , self.second)
 
@@ -140,14 +144,18 @@ class MainWindow(QMainWindow):
         window.setStyleSheet("background-color:white;")
         hbox_layout = QHBoxLayout()
         self.video_label = QPushButton(text, self)
+        pixmap = QPixmap.fromImage(self.thumb_nail)
+        icon = QIcon(pixmap)
+        self.video_label.setIcon(icon)
         self.video_label.setStyleSheet("border: 2px solid #3498db;\n")
         self.video_label.clicked.connect(self.play_video)
         font = QFont()
-        font.setPointSize(12)  # Change the font size to 16 points
+        # font.setPointSize(12)  # Change the font size to 16 points
         # self.video_label.setFont(font)
         # self.video_label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)  # Set the size policy
         # # Set the maximum width for the label (adjust this value to your desired threshold)
         self.video_label.setMaximumWidth(510)
+        self.video_label.setMinimumWidth(500)
         # self.video_label.setWordWrap(True)  # Enable text wrapping
         self.video_label.setMinimumHeight(500)
         hbox_layout.addWidget(self.video_label)
