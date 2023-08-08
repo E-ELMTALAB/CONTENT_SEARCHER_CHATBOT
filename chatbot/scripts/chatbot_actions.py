@@ -232,4 +232,3 @@ if __name__ == "__main__":
     action = Actions()
     name = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
     # cv2.imshow("image" , image)
-    # cv2.waitKey(0)
