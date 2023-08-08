@@ -134,6 +134,6 @@ class Database_Filler():
 
 if __name__ == '__main__':
 
-    CSV_PATH = r"C:\python\NLP\content_searcher\data\csv\video_info(4).csv"
+    CSV_PATH = r"C:\python\NLP\content_searcher\data\csv\video_info(5).csv"
     filler = Database_Filler()
     filler.push_video_info(CSV_PATH)
