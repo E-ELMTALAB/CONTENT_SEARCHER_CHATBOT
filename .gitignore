@@ -3,5 +3,6 @@ data/
 test/
 chatbot/.rasa/
 chatbot/tests
+chatbot/models/
 chatbot/__pychache__/
 .idea/

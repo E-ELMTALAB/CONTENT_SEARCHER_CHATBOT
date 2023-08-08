@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
         elif responses_info["intent"]["name"] == "request_for_video":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            image, image_path = self.chatbot.actions.find_image_request(request_objects=objects,request_actions=actions)
+            image, image_path = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
             self.send_image(image_path)
 
         else:

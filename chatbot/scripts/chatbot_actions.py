@@ -5,6 +5,8 @@ import cv2
 import psycopg2
 import psycopg2.extras
 from functools import wraps
+import pygame
+from pyvidplayer import Video
 
 class Actions():
 
@@ -164,7 +166,7 @@ class Actions():
         # print(image_path)
         # image = cv2.imread(image_path)
 
-        return chosen_one_id , highest_score_frame
+        return chosen_one_id , int(highest_score_frame)
 
     @db_connection
     def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
@@ -178,6 +180,33 @@ class Actions():
             traceback.print_exc()
             return None
 
+    def intro(self, video_path , frame):
+
+        vid = Video(video_path)
+        vid.set_size((900, 900))
+
+        print(type(frame))
+        # Initialize Pygame
+        pygame.init()
+
+        # Set the screen dimensions (width, height)
+        screen_width = 800
+        screen_height = 600
+
+        # Create the Pygame screen
+        SCREEN = pygame.display.set_mode((screen_width, screen_height))
+
+        print(vid.get_file_data())
+        second = ((frame * 120) // 25) - 5
+        print("the frame : " + str(second))
+        vid.seek(second)
+        while True:
+            vid.draw(SCREEN, (0, 0))
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    vid.close()
+
     @db_connection
     def find_video_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
         try:
@@ -185,18 +214,22 @@ class Actions():
             table = cur.fetchall()
             print(table)
             video_name , frame = self.find_video_occurrence(table , request_objects , request_actions)
-            print("the name of the video is : " + video_name)
-            print("the frame is the frame number : " + frame )
-            return "None"
+            base_path = r"C:\python\NLP\content_searcher\data\videos"
+            video_path = str(base_path + "\\" + video_name)
+            print("the name of the video is : " + video_path)
+            print("the frame is the frame number : " + str(frame) )
+            self.intro(video_path , frame)
+
+            return "video_name "
 
         except Exception as error:
             traceback.print_exc()
             return None
 
 if __name__ == "__main__":
-    request_objects = ["dog" ,"rug"]
-    request_actions = []
+    request_objects = ["dog" ,"blanket"]
+    request_actions = ["lay_blanket"]
     action = Actions()
-    image = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
+    name = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
     # cv2.imshow("image" , image)
     # cv2.waitKey(0)

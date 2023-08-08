@@ -41,7 +41,7 @@ responses:
     - text: I detected {collected_objects}.
 
   utter_request_for_video:
-    - text: I detected {collected_objects}.
+    - text: I detected {video_object_slot}.
 
   utter_repeat_number:
   - text: "your phone number is {phone_number_slot} . "
@@ -65,6 +65,7 @@ responses:
 entities:
   - phone_number
   - object
+  - video_object
 
 slots:
   phone_number_slot:
@@ -74,6 +75,13 @@ slots:
       - intent: give_number
         type: from_entity
         entity: phone_number
+
+  video_object_slot:
+    type: any
+    mappings:
+      - intent: request_for_video
+        type: from_entity
+        entity: video_object
 
   collected_objects:
     type: list
