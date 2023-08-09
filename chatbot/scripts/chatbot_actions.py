@@ -151,7 +151,10 @@ class Actions():
                             num = actions_list.count(request)
                             sorted_frames[str(i)] += num
                 sorted_frames = sorted(sorted_frames.items(), key=lambda x: x[1], reverse=True)
-                highest_score_frame = sorted_frames[0][0]
+                if len(sorted_frames) > 0:
+                    highest_score_frame = sorted_frames[0][0]
+                else:
+                    highest_score_frame = 0
 
 
 

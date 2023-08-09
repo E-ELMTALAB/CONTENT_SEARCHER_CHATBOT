@@ -8,7 +8,8 @@ from ui import Ui_MainWindow
 from ui import ClickableLabel
 from chatbot_backend import Chatbot
 import pygame
-from pyvidplayer import Video
+# from pyvidplayer_test import
+from test5 import Video_Player_Window
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -27,32 +28,32 @@ class MainWindow(QMainWindow):
         # sending the request in the chat by clicking or pressing the return
         self.ui.pushButton.clicked.connect(self.add_user_request)
         self.ui.lineEdit.returnPressed.connect(self.add_user_request)
-
-    def intro(self, video_path , second):
-
-        vid = Video(video_path)
-        vid.set_size((900, 900))
-
-        # Initialize Pygame
-        pygame.init()
-
-        # Set the screen dimensions (width, height)
-        screen_width = 800
-        screen_height = 600
-
-        # Create the Pygame screen
-        SCREEN = pygame.display.set_mode((screen_width, screen_height))
-
-        print(vid.get_file_data())
-        # second = ((frame * 120) // 25) - 5
-        print("the frame : " + str(second))
-        vid.seek(second)
-        while True:
-            vid.draw(SCREEN, (0, 0))
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    vid.close()
+    #
+    # def intro(self, video_path , second):
+    #
+    #     vid = Video(video_path)
+    #     vid.set_size((900, 900))
+    #
+    #     # Initialize Pygame
+    #     pygame.init()
+    #
+    #     # Set the screen dimensions (width, height)
+    #     screen_width = 800
+    #     screen_height = 600
+    #
+    #     # Create the Pygame screen
+    #     SCREEN = pygame.display.set_mode((screen_width, screen_height))
+    #
+    #     print(vid.get_file_data())
+    #     # second = ((frame * 120) // 25) - 5
+    #     print("the frame : " + str(second))
+    #     vid.seek(second)
+    #     while True:
+    #         vid.draw(SCREEN, (0, 0))
+    #         pygame.display.update()
+    #         for event in pygame.event.get():
+    #             if event.type == pygame.MOUSEBUTTONDOWN:
+    #                 vid.close()
 
     # used for the first chat of the bot
     def wellcome(self):
@@ -192,7 +193,9 @@ class MainWindow(QMainWindow):
     #     QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
 
     def play_video(self):
-        self.intro(self.video_path , self.second)
+        # self.intro(self.video_path , self.second)
+        self.player = Video_Player_Window()
+        self.player.intro(self.video_path , self.second)
 
     # function for sending images in the chat
     def send_image(self , image_path):

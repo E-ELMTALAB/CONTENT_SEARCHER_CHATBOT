@@ -1,18 +1,16 @@
 import pygame
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog, QAction, QMessageBox, QMainWindow
+    QSlider, QStyle, QSizePolicy, QFileDialog, QAction
 import sys
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtGui import QIcon, QPalette, QImage, QPixmap
 from PyQt5.QtCore import Qt, QUrl
-from PyQt5.uic.properties import QtWidgets
-
 from pyvidplayer_test import Video
 
 
 
-class Window(QWidget):
+class Video_Player_Window(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -24,6 +22,7 @@ class Window(QWidget):
         p =self.palette()
         p.setColor(QPalette.Window , Qt.black)
         self.setPalette(p)
+        self.run = True
 
         self.init_ui()
 
@@ -98,24 +97,24 @@ class Window(QWidget):
         self.mediaPlayer.positionChanged.connect(self.position_changed)
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
 
-        # self.actionExit = self.findChild(QAction, "actionExit")
-        # self.actionExit.triggered.connect(self.closeEvent)
-
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Quit?',
-                                     'Are you sure you want to quit?',
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        # reply = QMessageBox.question(self, 'Quit?',
+        #                              'Are you sure you want to quit?',
+        #                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        #
+        # if reply == QMessageBox.Yes:
+        #     if not type(event) == bool:
+        #         event.accept()
+        #     else:
+        #         sys.exit()
+        # else:
+        #     if not type(event) == bool:
+        #         event.ignore()
+        self.run = False
+        print("the video player closed")
+        self.vid.close()
 
-        if reply == QMessageBox.Yes:
-            if not type(event) == bool:
-                event.accept()
-            else:
-                sys.exit()
-        else:
-            if not type(event) == bool:
-                event.ignore()
-
-    def intro(self , video_path):
+    def intro(self , video_path , second):
 
         # self.vid.start()
         self.vid = Video(video_path)
@@ -139,8 +138,8 @@ class Window(QWidget):
         SCREEN = None
 
         print(self.vid.get_file_data())
-        # self.vid.seek(1034 // 25)
-        while True:
+        self.vid.seek(second)
+        while self.run:
             self.vid.draw(SCREEN, (0, 0))
             video_seconds = int(self.vid.get_playback_data()["time"])
             self.slider.setValue(video_seconds)
@@ -169,6 +168,8 @@ class Window(QWidget):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.vid.close()
 
+
+
     def slider_value_changed(self):
         self.vid.seek(self.slider.value())
         print(self.slider.value())
@@ -178,7 +179,7 @@ class Window(QWidget):
 
         if filename != '':
             self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
-            self.intro(filename)
+            self.intro(filename , 0)
             self.playBtn.setEnabled(True)
 
 
@@ -224,5 +225,5 @@ class Window(QWidget):
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
-    window = Window()
+    window = Video_Player_Window()
     sys.exit(app.exec_())
