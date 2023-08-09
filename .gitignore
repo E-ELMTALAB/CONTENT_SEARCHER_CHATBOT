@@ -1,6 +1,5 @@
 videos/
 data/
-test/
 chatbot/.rasa/
 chatbot/tests
 chatbot/models/
