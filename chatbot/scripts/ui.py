@@ -9,8 +9,8 @@
 ################################################################################
 
 from PyQt5.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt )
+                          QMetaObject, QObject, QPoint, QRect,
+                          QSize, QTime, QUrl, Qt, pyqtSignal)
 from PyQt5.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
@@ -175,6 +175,13 @@ class Ui_MainWindow(object):
     #     # Scroll the scroll area to the bottom
     #     v_scroll_bar = scroll_area.verticalScrollBar()
     #     v_scroll_bar.setValue(v_scroll_bar.maximum())
+class ClickableLabel(QLabel):
+    clicked = pyqtSignal()  # Custom signal
 
+    def __init__(self, text):
+        super().__init__(text)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()  # Emit the custom signal when clicked
 
 

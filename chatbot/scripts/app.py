@@ -3,8 +3,9 @@ import sys
 import cv2
 from PyQt5.QtWidgets import QApplication, QMainWindow , QLabel , QPushButton  , QHBoxLayout  , QSizePolicy , QFrame 
 from PyQt5.QtCore import Qt , QSize , QRect , QTimer
-from PyQt5.QtGui import QFont, QPixmap, QImage, QIcon
+from PyQt5.QtGui import QFont, QPixmap, QImage, QIcon, QPainter
 from ui import Ui_MainWindow
+from ui import ClickableLabel
 from chatbot_backend import Chatbot
 import pygame
 from pyvidplayer import Video
@@ -104,11 +105,10 @@ class MainWindow(QMainWindow):
             cap = cv2.VideoCapture(self.video_path)
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
             _ , frame = cap.read()
-            frame = cv2.cvtColor(frame , cv2.COLOR_BGR2RGB)
             height, width, channel = frame.shape
             bytes_per_line = width * channel
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
-            self.send_video_label("the video")
+            self.send_video_label()
             # self.intro(self.video_path , self.second)
 
         else:
@@ -138,31 +138,58 @@ class MainWindow(QMainWindow):
         self.ui.vbox_layout.addWidget(window)
         QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
 
-    # responding in the chat
-    def send_video_label(self , text):
+    def send_video_label(self):
+        text = self.ui.lineEdit.text()
         window = QFrame()
         window.setStyleSheet("background-color:white;")
         hbox_layout = QHBoxLayout()
-        self.video_label = QPushButton(text, self)
-        pixmap = QPixmap.fromImage(self.thumb_nail)
-        icon = QIcon(pixmap)
-        self.video_label.setIcon(icon)
-        self.video_label.setStyleSheet("border: 2px solid #3498db;\n")
-        self.video_label.clicked.connect(self.play_video)
+        # self.new_label = QLabel(text, self)
+        self.clickableLabel = ClickableLabel("Click Me!")
+        self.clickableLabel.setStyleSheet("border: 2px solid #3498db;\n")
+        self.clickableLabel.setFixedWidth(500)
         font = QFont()
-        # font.setPointSize(12)  # Change the font size to 16 points
-        # self.video_label.setFont(font)
-        # self.video_label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)  # Set the size policy
-        # # Set the maximum width for the label (adjust this value to your desired threshold)
-        self.video_label.setMaximumWidth(510)
-        self.video_label.setMinimumWidth(500)
-        # self.video_label.setWordWrap(True)  # Enable text wrapping
-        self.video_label.setMinimumHeight(500)
-        hbox_layout.addWidget(self.video_label)
+        font.setPointSize(12)
+        self.clickableLabel.setFont(font)
+        self.clickableLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)  # Set the size policy
+        self.clickableLabel.setWordWrap(True)  # Enable text wrapping
+        self.set_thumb_nail(self.thumb_nail)
+        self.clickableLabel.clicked.connect(self.play_video)  # Connect the custom signal
+        hbox_layout.addWidget(self.clickableLabel)
         hbox_layout.setAlignment(Qt.AlignLeft)
         window.setLayout(hbox_layout)
         self.ui.vbox_layout.addWidget(window)
-        QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
+        QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea)) # used for scrolling to the buttom of the chat
+
+
+    # # responding in the chat
+    # def send_video_label(self , text):
+    #     window = QFrame()
+    #     window.setStyleSheet("background-color:white;")
+    #     hbox_layout = QHBoxLayout()
+    #     self.video_label = QPushButton(self)
+    #     pixmap = QPixmap.fromImage(self.thumb_nail)
+    #     width = 500
+    #     height = int(pixmap.height() * width / pixmap.width())
+    #     # pixmap = pixmap.scaled(width, height)
+    #     icon = QIcon(pixmap)
+    #     self.video_label.setIconSize(QSize(height, width))
+    #     self.video_label.setIcon(icon)
+    #     self.video_label.setStyleSheet("border: 2px solid #3498db;\n")
+    #     self.video_label.clicked.connect(self.play_video)
+    #     font = QFont()
+    #     # font.setPointSize(12)  # Change the font size to 16 points
+    #     # self.video_label.setFont(font)
+    #     self.video_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)  # Set the size policy
+    #     # # Set the maximum width for the label (adjust this value to your desired threshold)
+    #     self.video_label.setMaximumWidth(500)
+    #     # self.video_label.setMinimumWidth(500)
+    #     # self.video_label.setWordWrap(True)  # Enable text wrapping
+    #     self.video_label.setMinimumHeight(50)
+    #     hbox_layout.addWidget(self.video_label)
+    #     hbox_layout.setAlignment(Qt.AlignLeft)
+    #     window.setLayout(hbox_layout)
+    #     self.ui.vbox_layout.addWidget(window)
+    #     QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
 
     def play_video(self):
         self.intro(self.video_path , self.second)
@@ -200,6 +227,37 @@ class MainWindow(QMainWindow):
         self.new_label.setPixmap(pixmap)
         self.new_label.setMaximumHeight(pixmap.height())
         return height
+
+    def set_thumb_nail(self , thumb_nail):
+        # Load the image using QPixmap
+        pixmap = QPixmap.fromImage(thumb_nail)
+        # Set the width of the image to 500 and calculate the proportional height
+        width = 500
+        height = int(pixmap.height() * width / pixmap.width())
+        pixmap = pixmap.scaled(width, height)
+
+        # Load the background and overlay images as QPixmaps
+        # background = QPixmap(background_path)
+        overlay = QPixmap(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
+        overlay = overlay.scaled(90 , 90)
+
+        # Calculate the center position for the overlay image
+        center_x = (pixmap.width() - overlay.width()) // 2
+        center_y = (pixmap.height() - overlay.height()) // 2
+
+        # Create a painter to draw the overlay on top of the background at the center position
+        painter = QPainter(pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        # Set the overlay image's alpha channel to control transparency
+        overlay_with_alpha = overlay.copy()
+
+        painter.setOpacity(40 * 0.01)
+        painter.drawPixmap(center_x, center_y, overlay)
+        # painter.drawPixmap(center_x, center_y, overlay)
+        painter.end()
+        # Set the pixmap to the label
+        self.clickableLabel.setPixmap(pixmap)
+        self.clickableLabel.setMaximumHeight(pixmap.height())
 
 
     def scrollToBottom(self, scroll_area):

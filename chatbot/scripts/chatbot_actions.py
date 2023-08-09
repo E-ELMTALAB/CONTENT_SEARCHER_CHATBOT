@@ -164,7 +164,7 @@ class Actions():
         # print(image_path)
         # image = cv2.imread(image_path)
 
-        return chosen_one_id , ((int(highest_score_frame) * 120) // 25) - 5 , int(highest_score_frame)
+        return chosen_one_id , ((int(highest_score_frame) * 120) // 25) - 5 , int(highest_score_frame) * 120
 
     @db_connection
     def find_image_request(self , conn=None , cur=None , objects= None , request_objects=None , request_actions=None):
@@ -200,5 +200,6 @@ if __name__ == "__main__":
     request_objects = ["dog" ,"blanket"]
     request_actions = ["lay_blanket"]
     action = Actions()
-    video_path , second = action.find_video_request(request_objects=request_objects , request_actions=request_actions)
+    video_path , second , frame_index= action.find_video_request(request_objects=request_objects , request_actions=request_actions)
+    print(frame_index)
     # cv2.imshow("image" , image)
