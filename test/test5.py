@@ -57,8 +57,8 @@ class Window(QWidget):
 
         #create slider
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setRange(0,100)
         self.slider.sliderMoved.connect(self.set_position)
+        self.slider.sliderReleased.connect(self.slider_value_changed)
 
 
 
@@ -103,6 +103,10 @@ class Window(QWidget):
         self.vid.set_size((900, (900*self.vid.video_height)/ self.vid.video_width))
         self.playBtn.clicked.connect(self.vid.toggle_pause)
 
+        # slider properties
+        duration = self.vid.get_file_data()["duration"]
+        self.slider.setRange(0, int(duration))
+
 
         # Initialize Pygame
         pygame.init()
@@ -116,9 +120,11 @@ class Window(QWidget):
         SCREEN = None
 
         print(self.vid.get_file_data())
-        # vid.seek(1034 // 25)
+        # self.vid.seek(1034 // 25)
         while True:
             self.vid.draw(SCREEN, (0, 0))
+            video_seconds = int(self.vid.get_playback_data()["time"])
+            self.slider.setValue(video_seconds)
             # self.vid.update()
             # if self.vid.frame:
             # print(self.vid.frame)
@@ -144,6 +150,9 @@ class Window(QWidget):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.vid.close()
 
+    def slider_value_changed(self):
+        self.vid.seek(self.slider.value())
+        print(self.slider.value())
 
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Video")

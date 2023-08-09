@@ -94,7 +94,10 @@ class Video:
                 # print("frmae shape " + str(frame_np.shape))
                 # print(self.video_height)
                 # print(self.video_width)
-                print(str(self.video.get_pts()))
+                # self.video_seconds = int(self.video.get_pts())
+                # print(self.video_seconds)
+                video_height = self.video_height
+                video_width = self.video_width
                 frame_height = int((900 * self.video_height) / self.video_width)
                 frame_width = 900
                 frame_np = frame_np.reshape( frame_height,frame_width , 3)  # Assuming RGB format
