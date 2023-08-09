@@ -239,7 +239,7 @@ class MainWindow(QMainWindow):
         # Load the background and overlay images as QPixmaps
         # background = QPixmap(background_path)
         overlay = QPixmap(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
-        overlay = overlay.scaled(90 , 90)
+        overlay = overlay.scaled(110 , 90)
 
         # Calculate the center position for the overlay image
         center_x = (pixmap.width() - overlay.width()) // 2
