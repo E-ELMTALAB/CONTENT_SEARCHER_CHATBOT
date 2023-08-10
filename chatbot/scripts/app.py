@@ -116,9 +116,10 @@ class MainWindow(QMainWindow):
             _ , frame = cap.read()
             height, width, channel = frame.shape
             bytes_per_line = width * channel
+            frame = self.overlay_button(frame)
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label()
-            self.play_video()
+            # self.play_video()
 
         elif (responses_info["intent"]["name"] == "deny") and self.waiting_for_answer:
             self.frame_index = 0
@@ -128,9 +129,10 @@ class MainWindow(QMainWindow):
             _ , frame = cap.read()
             height, width, channel = frame.shape
             bytes_per_line = width * channel
+            frame = self.overlay_button(frame)
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label()
-            self.play_video()
+            # self.play_video()
 
         else:
             self.send_response(received_text)
@@ -251,6 +253,47 @@ class MainWindow(QMainWindow):
         self.new_label.setMaximumHeight(pixmap.height())
         return height
 
+    def overlay_button(self, overlay_image):
+
+        play_image = cv2.imread(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
+        play_image = cv2.bitwise_not(play_image)
+        play_image = cv2.resize(play_image, (200, 160))
+        play_height, play_width, play_channel = play_image.shape
+        overlay_height, overlay_width, overlay_channel = overlay_image.shape
+        b1 = (overlay_height // 2)
+        s1 = (play_height // 2)
+        b2 = (overlay_width // 2)
+        s2 = (play_width // 2)
+        center = (b1, b2)
+        top_left_corner = (b1 - s1, b2 - s2)
+        top_right_corner = (b1 + s1, b2 - s2)
+        bottom_left_corner = (b1 - s1, b2 + s2)
+        bottom_right_corner = (b1 + s1, b2 + s2)
+
+        # overlay_image = cv2.circle(overlay_image , center , 5 , (255 , 0 , 0) , -1)
+        #
+        # overlay_image = cv2.circle(overlay_image , top_left_corner ,5 , (255 , 255 , 0) , -1)
+        # overlay_image = cv2.circle(overlay_image , top_right_corner ,5 , (255 , 255 , 0) , -1)
+        # overlay_image = cv2.circle(overlay_image , bottom_left_corner ,5 , (255 , 255 , 0) , -1)
+        # overlay_image = cv2.circle(overlay_image , bottom_right_corner ,5 , (255 , 255 , 0) , -1)
+
+        cropped = overlay_image[top_left_corner[0]: bottom_right_corner[0], top_right_corner[1]: bottom_right_corner[1]]
+
+        # Add the two images together
+        combined_image = cv2.add(cropped, play_image)
+
+        overlay_image[top_left_corner[0]: bottom_right_corner[0],
+        top_right_corner[1]: bottom_right_corner[1]] = combined_image
+
+        return overlay_image
+
+        # Display or save the combined image
+        # cv2.imshow("cropped", cropped)
+        # cv2.imshow('Combined Images', overlay_image)
+        # cv2.imshow("combined", combined_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
     def set_thumb_nail(self , thumb_nail):
         # Load the image using QPixmap
         pixmap = QPixmap.fromImage(thumb_nail)
@@ -261,23 +304,23 @@ class MainWindow(QMainWindow):
 
         # Load the background and overlay images as QPixmaps
         # background = QPixmap(background_path)
-        overlay = QPixmap(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
-        overlay = overlay.scaled(110 , 90)
-
-        # Calculate the center position for the overlay image
-        center_x = (pixmap.width() - overlay.width()) // 2
-        center_y = (pixmap.height() - overlay.height()) // 2
-
-        # Create a painter to draw the overlay on top of the background at the center position
-        painter = QPainter(pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-        # Set the overlay image's alpha channel to control transparency
-        overlay_with_alpha = overlay.copy()
-
-        painter.setOpacity(40 * 0.01)
-        painter.drawPixmap(center_x, center_y, overlay)
+        # overlay = QPixmap(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
+        # overlay = overlay.scaled(110 , 90)
+        #
+        # # Calculate the center position for the overlay image
+        # center_x = (pixmap.width() - overlay.width()) // 2
+        # center_y = (pixmap.height() - overlay.height()) // 2
+        #
+        # # Create a painter to draw the overlay on top of the background at the center position
+        # painter = QPainter(pixmap)
+        # painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        # # Set the overlay image's alpha channel to control transparency
+        # overlay_with_alpha = overlay.copy()
+        #
+        # painter.setOpacity(40 * 0.01)
         # painter.drawPixmap(center_x, center_y, overlay)
-        painter.end()
+        # # painter.drawPixmap(center_x, center_y, overlay)
+        # painter.end()
         # Set the pixmap to the label
         self.clickableLabel.setPixmap(pixmap)
         self.clickableLabel.setMaximumHeight(pixmap.height())
