@@ -9,6 +9,7 @@ This program first processes the available images, identifying the objects and c
 
 ## Showcase
 Included below is a video showcasing the functionality  of the project. (please watch with vpn turned off)
+
 https://github.com/E-ELMTALAB/CAR_PRICE_PREDICTION/assets/117757969/190bbf6f-78c1-4da8-9a5f-14b819445699
 
 ## Screenshots
