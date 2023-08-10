@@ -107,10 +107,10 @@ class MainWindow(QMainWindow):
             self.video_path , self.second , self.frame_index = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
             if self.second != 0:
                 self.waiting_for_answer = 1
-                received_text , responses_infor = self.chatbot.async_send_message("found_good_match")
-                self.send_response(received_text)
+                # received_text , responses_infor = self.chatbot.async_send_message("found_good_match")
+                self.send_response("I have found a good match .Would you like me to take you to the exact scene where your request happens ?")
 
-        elif responses_info["intent"]["name"] == "affirm":
+        elif (responses_info["intent"]["name"] == "affirm") and self.waiting_for_answer:
             cap = cv2.VideoCapture(self.video_path)
             cap.set(cv2.CAP_PROP_POS_FRAMES, self.frame_index)
             _ , frame = cap.read()
@@ -118,9 +118,9 @@ class MainWindow(QMainWindow):
             bytes_per_line = width * channel
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label()
-            self.intro(self.video_path , self.second)
+            self.play_video()
 
-        elif responses_info["intent"]["name"] == "deny":
+        elif (responses_info["intent"]["name"] == "deny") and self.waiting_for_answer:
             self.frame_index = 0
             self.second = 0
             cap = cv2.VideoCapture(self.video_path)
@@ -130,7 +130,7 @@ class MainWindow(QMainWindow):
             bytes_per_line = width * channel
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label()
-            self.intro(self.video_path , self.second)
+            self.play_video()
 
         else:
             self.send_response(received_text)

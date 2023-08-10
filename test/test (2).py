@@ -1,10 +1,39 @@
 import cv2
+import numpy as np
 
-obj_list = "dog_fenced_puppy_area@dog_puppy@dog_cage_ground_blanket@sheep_grass@sheep_field_grass_building@dog_grass_puppy@dog_grass_puppy@plant_dog_dirt@dog_wood@cage_puppy_floor@dog_cage_puppy@lot_puppy_basket@dog_bucket@frisbee_dog_grass@dog_grass@dog_grass@dog_grass@dog_grass_house@dog_sidewalk@dog_blanket@rug_dog@dirt_puppy@dog_dirt_puppy_area@dog_grass_puppy@dog_dirt_puppy@dog_sidewalk@dog_puppy_sidewalk@dog_sidewalk@dog_ground_puppy@dog@dog_ground@dog_food@dog@dog_ground"
+# Load two images
+play_image = cv2.imread(r"C:\Users\Morvarid\Downloads\play-button-icon-Graphics-1-6-580x386.jpg")
+overlay_image = cv2.imread(r'C:\Users\Morvarid\Pictures\Saved Pictures\avatar1243759155 (1).jpg')
+overlay_image = cv2.resize(overlay_image , (600 , 600))
+play_image = cv2.resize(play_image , (600 , 600))
+play_image = cv2.bitwise_not(play_image)
 
-splited_list = obj_list.split("@")
 
-print(splited_list[2])
+# Check if images are loaded successfully
+if play_image is None or overlay_image is None:
+    print("Error loading images.")
+else:
+    # Make sure both images have the same dimensions
+    if play_image.shape != overlay_image.shape:
+        print("Images have different dimensions. They cannot be added.")
+    else:
+
+        play_height , play_width , play_channel = play_image.shape
+        overlay_height , overlay_width , overlay_channel = overlay_image.shape
+
+        
+
+
+        # Add the two images together
+        combined_image = cv2.add(image1, image2)
+
+        # Display or save the combined image
+        cv2.imshow('Combined Images', combined_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        # Save the combined image
+        # cv2.imwrite('combined_image.jpg', combined_image)
 
 
 # print(sorted_items)
