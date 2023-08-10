@@ -90,6 +90,9 @@ class MainWindow(QMainWindow):
         self.ui.vbox_layout.addLayout(hbox_layout)
         QTimer.singleShot(20, lambda: self.scrollToBottom(self.ui.scrollArea))
 
+        self.receive_process_response(text)
+
+    def receive_process_response(self , text):
         #send request for the chatbot server
         received_text , responses_info = self.chatbot.async_send_message(text)
         if responses_info["intent"]["name"] == "request_for_picture":
@@ -101,16 +104,33 @@ class MainWindow(QMainWindow):
         elif responses_info["intent"]["name"] == "request_for_video":
             value = responses_info["entities"][0]["value"]
             objects, actions = self.chatbot.process_request(value)
-            self.video_path , self.second , frame_index = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+            self.video_path , self.second , self.frame_index = self.chatbot.actions.find_video_request(request_objects=objects,request_actions=actions)
+            if self.second != 0:
+                self.waiting_for_answer = 1
+                received_text , responses_infor = self.chatbot.async_send_message("found_good_match")
+                self.send_response(received_text)
 
+        elif responses_info["intent"]["name"] == "affirm":
             cap = cv2.VideoCapture(self.video_path)
-            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, self.frame_index)
             _ , frame = cap.read()
             height, width, channel = frame.shape
             bytes_per_line = width * channel
             self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
             self.send_video_label()
-            # self.intro(self.video_path , self.second)
+            self.intro(self.video_path , self.second)
+
+        elif responses_info["intent"]["name"] == "deny":
+            self.frame_index = 0
+            self.second = 0
+            cap = cv2.VideoCapture(self.video_path)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, self.frame_index)
+            _ , frame = cap.read()
+            height, width, channel = frame.shape
+            bytes_per_line = width * channel
+            self.thumb_nail = QImage(frame.data , width , height , bytes_per_line , QImage.Format_BGR888)
+            self.send_video_label()
+            self.intro(self.video_path , self.second)
 
         else:
             self.send_response(received_text)
