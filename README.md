@@ -1,11 +1,15 @@
 # IMAGE FINDER CHATBOT
 
 
-This chatbot can be used to find your desired images of objects , animals , places and... the chatbot is using models like [`image captioning`](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning) , [`Object detection`](https://huggingface.co/facebook/detr-resnet-101) , [`Intent Classification`](https://rasa.com/blog/rasa-nlu-in-depth-part-1-intent-classification/) and [`Information Extraction`](https://rasa.com/docs/rasa/reference/rasa/nlu/extractors/extractor/) . All you need to do is to talk to the chatbot , ask a few questions of how it works and how you can use it , and then start searching for your desired content ...
+This chatbot can be used to find your desired VIDEOS and IMAGES of objects , animals , places and... the chatbot is using models like [`image captioning`](https://huggingface.co/nlpconnect/vit-gpt2-image-captioning) , [`Object detection`](https://huggingface.co/facebook/detr-resnet-101) , [`Intent Classification`](https://rasa.com/blog/rasa-nlu-in-depth-part-1-intent-classification/) and [`Information Extraction`](https://rasa.com/docs/rasa/reference/rasa/nlu/extractors/extractor/) . All you need to do is to talk to the chatbot , ask a few questions of how it works and how you can use it , and then start searching for your desired content ...
 
 # Description
 
 This program first processes the available images, identifying the objects and capturing the actions being performed (captions), and then stores this information in the database. When interacting with our chatbot, we have the flexibility to specify our preferences and the desired actions for the images. The bot takes care of the rest, seamlessly executing our requests.
+
+## Showcase
+Included below is a video showcasing the functionality  of the project. (please watch with vpn turned off)
+https://github.com/E-ELMTALAB/CAR_PRICE_PREDICTION/assets/117757969/190bbf6f-78c1-4da8-9a5f-14b819445699
 
 ## Screenshots
 Included below are several images showcasing the functionality  of the project
